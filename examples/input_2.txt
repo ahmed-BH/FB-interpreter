@@ -2,6 +2,8 @@
 start
 a = true && false; // C-like logic expression
 b = (a == true) || 5 > 3;
+c = !a && b || (!b && true);
 print a;
 print b;
-end // end program
+print c;
+end 

@@ -1,0 +1,6 @@
+/* error testing */
+start
+a = 17 * 5 - 5^9;
+print a ;
+print c;
+end
