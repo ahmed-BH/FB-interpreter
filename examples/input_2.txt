@@ -1,0 +1,7 @@
+// start of program
+start
+a = true && false; // C-like logic expression
+b = (a == true) || 5 > 3;
+print a;
+print b;
+end // end program

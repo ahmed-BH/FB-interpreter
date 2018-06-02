@@ -1,0 +1,10 @@
+/* multiline
+comments
+C-like 
+*/
+start
+a = 12 * 8 - 12 - 13; // basic arithmetic expression 
+print a; // show content of Variable "a"
+b = a^5 % 10 + pi * (15/8)-9 ; // little more complicated expression
+print b; 
+end
