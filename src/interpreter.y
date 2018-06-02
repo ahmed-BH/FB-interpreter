@@ -98,6 +98,7 @@ code         : inst code
 ;
 inst         : expr_log  SEMICOLON            { cout << "Logic Expr is" << $1 << endl;} 
              | expr_arth SEMICOLON            {cout << "Expr_Value : "  << $1 << endl;} 
+             | ID ASSIGN expr_log SEMICOLON   {string key($1);pile_exec[key] = $3;}
              | ID ASSIGN expr_arth SEMICOLON  {string key($1);pile_exec[key] = $3;}
              | ID ASSIGN NB SEMICOLON         {string key($1);pile_exec[key] = $3;}
              | ID ASSIGN cmp SEMICOLON        {string key($1);pile_exec[key] = $3;}
