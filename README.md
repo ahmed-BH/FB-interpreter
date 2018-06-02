@@ -30,7 +30,7 @@ fb-interpreter <examples/input_1.txt>
 Scrots
 ------
 
-![Testing](scrot/tests.png?raw=true "Testing")
+![Testing](scrots/tests.png?raw=true "Testing")
 
 ### Adding new features
 
