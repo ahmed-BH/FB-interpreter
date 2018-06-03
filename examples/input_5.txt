@@ -1,0 +1,7 @@
+/* program that
+contains errors
+*/
+start
+a = 5;
+print a + b * 6 ; // b is not defined
+end

@@ -1,0 +1,8 @@
+/* program that
+contains errors
+*/
+start 
+Var_a = 15^2;
+print Var_a - 100;
+b = 15 - 10
+end
