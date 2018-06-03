@@ -16,7 +16,7 @@ cd FB-interpreter/
 Compiling and generating the executable (**interpreter.tab.c, interpreter.tab.h and lex.yy.c** are auto-generated files produced by Bison and Flex from **interpreter.y** and **interpreter.l**)
 
 ```shell
-g++ interpreter.tab.c -o fb-interpreter
+g++ src/interpreter.tab.c -o fb-interpreter
 
 ```
 
