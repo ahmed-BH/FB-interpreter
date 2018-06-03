@@ -1,9 +1,5 @@
 /* error testing */
 start
-a = true || false;
-b = true * 10 - false; // like C-lang true = 1 and false = 0
-c = false;
-print a;
-print b;
-print (a+b)/c;
+a = 5 * 2 - 20/2;
+print 1/a;
 end

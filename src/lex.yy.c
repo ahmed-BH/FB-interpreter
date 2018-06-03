@@ -518,17 +518,28 @@ char *yytext;
  * global variables
  * 
  *------------------------------------------------------------------*/
-extern int line;                
+extern int line;
+extern string line_content;
+int column = 1;              
 void   yyerror(const char * msg);  
 int    lines_in_comments(char* text, int len);
 
-#line 525 "lex.yy.c"
+/*--------------------------------------------------------------------
+ * 
+ * macros for yylloc
+ * 
+ *------------------------------------------------------------------*/
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = line; \
+    yylloc.first_column = column; yylloc.last_column = column + yyleng - 1; \
+    column = column + yyleng; line_content += string(yytext); 
+
+#line 536 "lex.yy.c"
 /*--------------------------------------------------------------------
  * 
  * flex definitions
  * 
  *------------------------------------------------------------------*/
-#line 531 "lex.yy.c"
+#line 542 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -745,10 +756,10 @@ YY_DECL
 		}
 
 	{
-#line 36 "interpreter.l"
+#line 47 "interpreter.l"
 
 
-#line 751 "lex.yy.c"
+#line 762 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -808,166 +819,166 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 38 "interpreter.l"
-line += lines_in_comments(yytext,yyleng);
+#line 49 "interpreter.l"
+{line += lines_in_comments(yytext,yyleng); column = 1; line_content = "";}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 39 "interpreter.l"
+#line 50 "interpreter.l"
 return START;
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 40 "interpreter.l"
+#line 51 "interpreter.l"
 return END;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 41 "interpreter.l"
+#line 52 "interpreter.l"
 return PRINT;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 42 "interpreter.l"
+#line 53 "interpreter.l"
 return TRUE;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 43 "interpreter.l"
+#line 54 "interpreter.l"
 return FALSE;
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 44 "interpreter.l"
+#line 55 "interpreter.l"
 return LBRACE;        
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 45 "interpreter.l"
+#line 56 "interpreter.l"
 return RBRACE;        
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 46 "interpreter.l"
+#line 57 "interpreter.l"
 return PLUS;          
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 47 "interpreter.l"
+#line 58 "interpreter.l"
 return MINUS;         
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 48 "interpreter.l"
+#line 59 "interpreter.l"
 return MULT;          
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 49 "interpreter.l"
+#line 60 "interpreter.l"
 return DIV;           
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 50 "interpreter.l"
+#line 61 "interpreter.l"
 return POW;           
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 51 "interpreter.l"
+#line 62 "interpreter.l"
 return MOD;           
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 52 "interpreter.l"
+#line 63 "interpreter.l"
 {sprintf(yylval.str,"%s",yytext); return GRT; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 53 "interpreter.l"
+#line 64 "interpreter.l"
 {sprintf(yylval.str,"%s",yytext); return LESS;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 54 "interpreter.l"
+#line 65 "interpreter.l"
 {sprintf(yylval.str,"%s",yytext); return GE;  }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 55 "interpreter.l"
+#line 66 "interpreter.l"
 {sprintf(yylval.str,"%s",yytext); return LE;  }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 56 "interpreter.l"
+#line 67 "interpreter.l"
 {sprintf(yylval.str,"%s",yytext); return EQ;  }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 57 "interpreter.l"
+#line 68 "interpreter.l"
 {sprintf(yylval.str,"%s",yytext); return DIF; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 58 "interpreter.l"
+#line 69 "interpreter.l"
 return NOT; 
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 59 "interpreter.l"
+#line 70 "interpreter.l"
 return AND; 
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 60 "interpreter.l"
+#line 71 "interpreter.l"
 return OR;  
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 61 "interpreter.l"
+#line 72 "interpreter.l"
 return ASSIGN;        
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 62 "interpreter.l"
+#line 73 "interpreter.l"
 return SEMICOLON;     
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 63 "interpreter.l"
+#line 74 "interpreter.l"
 return PI;    
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 64 "interpreter.l"
-{sprintf(yylval.str,"%s",yytext);return ID;   }
+#line 75 "interpreter.l"
+{sprintf(yylval.str,"%s",yytext);return ID; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 65 "interpreter.l"
+#line 76 "interpreter.l"
 {sscanf(yytext,"%lf",&yylval.real);return NB; }
 	YY_BREAK
 case 29:
 /* rule 29 can match eol */
 YY_RULE_SETUP
-#line 66 "interpreter.l"
-line++;
+#line 77 "interpreter.l"
+{line++; column = 1; line_content = "";}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 67 "interpreter.l"
+#line 78 "interpreter.l"
 
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 68 "interpreter.l"
+#line 79 "interpreter.l"
 {char msg[yyleng+1]; sprintf(msg,"Lexical Error : %s", yytext); yyerror(msg);}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 70 "interpreter.l"
+#line 81 "interpreter.l"
 ECHO;
 	YY_BREAK
-#line 970 "lex.yy.c"
+#line 981 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1972,7 +1983,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 70 "interpreter.l"
+#line 81 "interpreter.l"
 
 
 int yywrap() {return 1;}

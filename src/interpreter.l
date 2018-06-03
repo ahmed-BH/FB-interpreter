@@ -12,9 +12,20 @@
  * global variables
  * 
  *------------------------------------------------------------------*/
-extern int line;                
+extern int line;
+extern string line_content;
+int column = 1;              
 void   yyerror(const char * msg);  
 int    lines_in_comments(char* text, int len);
+
+/*--------------------------------------------------------------------
+ * 
+ * macros for yylloc
+ * 
+ *------------------------------------------------------------------*/
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = line; \
+    yylloc.first_column = column; yylloc.last_column = column + yyleng - 1; \
+    column = column + yyleng; line_content += string(yytext); 
 
 %}
 
@@ -35,7 +46,7 @@ comment       ("/""*"+([\n\r]|[^"/*"])*"*"+"/")|("//".*[\n])
 
 %%
 
-{comment}     line += lines_in_comments(yytext,yyleng);
+{comment}     {line += lines_in_comments(yytext,yyleng); column = 1; line_content = "";}
 "start"       return START;
 "end"         return END;
 "print"       return PRINT;
@@ -61,9 +72,9 @@ comment       ("/""*"+([\n\r]|[^"/*"])*"*"+"/")|("//".*[\n])
 "="           return ASSIGN;        
 ";"           return SEMICOLON;     
 {pi}          return PI;    
-{id}          {sprintf(yylval.str,"%s",yytext);return ID;   }
+{id}          {sprintf(yylval.str,"%s",yytext);return ID; }
 {nb}          {sscanf(yytext,"%lf",&yylval.real);return NB; }
-[\n]          line++;
+[\n]          {line++; column = 1; line_content = "";}
 [ \t\r]     
 .             {char msg[yyleng+1]; sprintf(msg,"Lexical Error : %s", yytext); yyerror(msg);}
 

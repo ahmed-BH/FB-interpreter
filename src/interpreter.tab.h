@@ -80,7 +80,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 73 "interpreter.y" /* yacc.c:1909  */
+#line 92 "interpreter.y" /* yacc.c:1909  */
  char str[0x100]; double real; bool logic;
 
 #line 87 "interpreter.tab.h" /* yacc.c:1909  */
@@ -91,9 +91,23 @@ typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+/* Location type.  */
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 
 extern YYSTYPE yylval;
-
+extern YYLTYPE yylloc;
 int yyparse (void);
 
 #endif /* !YY_YY_INTERPRETER_TAB_H_INCLUDED  */

@@ -3,6 +3,22 @@
 
 /*--------------------------------------------------------------------
  * 
+ * Console colors (only UNIX)
+ * 
+ *------------------------------------------------------------------*/
+#ifdef _WIN32
+    #define GREEN   ""
+    #define RED     "" 
+    #define RST     ""
+    #define BLD     ""
+#else
+    #define GREEN   "\033[32;1m"
+    #define RED     "\033[31;1m" 
+    #define RST     "\033[0m"
+    #define BLD     "\033[1m"
+#endif
+/*--------------------------------------------------------------------
+ * 
  * Includes
  * 
  *------------------------------------------------------------------*/
@@ -27,9 +43,12 @@ void                yyerror(const char * msg);
  * Global variables
  * 
  *------------------------------------------------------------------*/
-int                 line = 1;                  
-extern FILE*        yyin;               
+int                 line = 1;      
+string              line_content;            
+extern FILE*        yyin;     
+string              filename;          
 map<string, double> pile_exec;   
+
 
 %}
 
@@ -77,10 +96,18 @@ map<string, double> pile_exec;
 
 /*------------------------------------------------------------------------------
  *
+ * track token's location
+ *
+ *----------------------------------------------------------------------------*/
+%locations
+
+/*------------------------------------------------------------------------------
+ *
  * Start of grammar
  *
  *----------------------------------------------------------------------------*/
 %start axiome
+
 
 %%
 
@@ -102,19 +129,7 @@ inst         : expr_log  SEMICOLON            { cout << "Logic Expr is" << $1 <<
              | ID ASSIGN expr_arth SEMICOLON  {string key($1);pile_exec[key] = $3;}
              | ID ASSIGN NB SEMICOLON         {string key($1);pile_exec[key] = $3;}
              | ID ASSIGN cmp SEMICOLON        {string key($1);pile_exec[key] = $3;}
-             | PRINT ID SEMICOLON    {string key($2);
-                if(pile_exec.find(key) == pile_exec.end())
-                {
-                    string msg = string("Undefined Variable \"") + key + string("\"");
-                    yyerror(msg.c_str());
-                    YYABORT;
-                }
-                else
-                {
-                    cout << "PRINT : " << key << " = " << pile_exec[key] << endl;
-                }
-             }
-             | PRINT expr_arth SEMICOLON {cout << "PRINT : " << $2 << endl;}
+             | PRINT expr_arth SEMICOLON      {cout << "PRINT : " << $2 << endl;}
 ;
 expr_arth  :   LBRACE expr_arth RBRACE    {$$ = $2; }
              | expr_arth PLUS  expr_arth  {$$ = $1+$3;}
@@ -165,7 +180,7 @@ oprd       :  TRUE  {$$ = 1;}
             | ID    {string key($1);
                 if(pile_exec.find(key) == pile_exec.end())
                 {
-                    string msg = string("Undefined Variable \"") + key + string("\"");
+                    string msg = string("Variable \"") + key + string("\" is not declared");
                     yyerror(msg.c_str());
                     YYABORT;
                 }
@@ -190,10 +205,35 @@ logic_opr  : GRT | LESS | GE | LE | EQ | DIF
 
 void yyerror(const char * msg)
 {
-cerr << "Line " << line << ": " << msg << endl;
+    if(yylloc.first_line)
+    {
+        cerr <<BLD<< filename << ":"<< yylloc.first_line << ":" << yylloc.first_column << RST ;
+        cerr <<BLD<< RED<<" error : " << RST << msg << endl;        
+    }
+    else
+    {
+        cerr << RED << "Error : " << RST << msg << endl;
+    }
+
+    /*--------------------------------------------------------------------
+     * 
+     * nicely print the error
+     *
+     *------------------------------------------------------------------*/
+    cerr <<BLD<< filename <<":"<< yylloc.first_line<<RST << "\t" << line_content << endl;
+    int nb_spaces = filename.size() + to_string(yylloc.first_line).size();
+    for(int i=1; i <= nb_spaces ; i++)
+        cerr << " ";
+    cerr << "\t";
+    for(int i=1; i < yylloc.first_column; i++)
+        cerr << GREEN << "." << RST;
+    for(int i=yylloc.first_column; i<= yylloc.last_column; i++ )
+        cerr << RED << "^" << RST;
+    cerr << endl;
+
 }
 
-int main(int argc,char ** argv)
+int main(int argc, char ** argv)
 {
 
     if(argc == 2)
@@ -201,8 +241,9 @@ int main(int argc,char ** argv)
             yyin = fopen(argv[1],"r");
             if (yyin)
             {
-
+                filename = string(argv[1]);
                 yyparse();
+
                 return 0;  
             }
             else
