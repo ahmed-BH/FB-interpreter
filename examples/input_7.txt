@@ -1,0 +1,7 @@
+start
+a = pi;
+b = log(5) * cos(40) - exp(1) / acos(0) ;
+print a;
+print b;
+print max(a,b, abs(a - b)) * min(a,b, abs(5*a - b));
+end 

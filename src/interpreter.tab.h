@@ -74,7 +74,9 @@ extern int yydebug;
     RBRACE = 284,
     COMMA = 285,
     SEMICOLON = 286,
-    STRING = 287
+    LSBRACE = 287,
+    RSBRACE = 288,
+    STRING = 289
   };
 #endif
 
@@ -85,14 +87,15 @@ union YYSTYPE
 {
 #line 114 "interpreter.y" /* yacc.c:1909  */
  
-    char             str[0x100]; 
+    char             str[0x100];
+    char             charac; 
     double           real; 
     int              integer;
     bool             logic;
     struct func_args t_args;
  
 
-#line 96 "interpreter.tab.h" /* yacc.c:1909  */
+#line 99 "interpreter.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

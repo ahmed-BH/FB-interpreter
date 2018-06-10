@@ -1,0 +1,8 @@
+/* basic string operation
+with the 'print'
+*/
+start
+print "1" * 5; // python style :)
+print "2" + "0"*3;
+print "ahmed"[0] + "ahmed"[1] + "ahmed"[3];
+end

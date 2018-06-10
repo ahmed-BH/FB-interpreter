@@ -54,6 +54,8 @@ comment       ("/""*"+([\n\r]|[^"/*"])*"*"+"/")|("//".*[\n])
 "print"       return PRINT;
 "true"        return TRUE;
 "false"       return FALSE;
+"["			  return LSBRACE;
+"]"			  return RSBRACE;
 "("           return LBRACE;        
 ")"           return RBRACE;        
 "+"           return PLUS;          

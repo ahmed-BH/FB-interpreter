@@ -1,6 +1,6 @@
 # FB-interpreter
 
-FB-interpreter is just another simple interpreter build with Flex and Bison.
+FB-interpreter is logic-arithmetic interpreter with variable and string support, build with Flex and Bison.
 
 ### Prerequisites
 
@@ -20,7 +20,7 @@ g++ src/interpreter.tab.c -o fb-interpreter
 
 ```
 
-The example folder contains some input_files, to test, run :
+The example folder contains some input_files, to test an example, run :
 
 ```shell
 fb-interpreter <examples/input_1.txt>
@@ -31,7 +31,7 @@ Scrots
 ------
 
 ![Testing](scrots/tests.png?raw=true "Testing")
-
+![basic string and fonction support](scrots/basic_fct_str?raw=true "basic string and fonction support")
 ### Adding new features
 
 * [Flex](https://www.gnu.org/software/flex/) : Fast Lexical Analyzer should be installed
@@ -57,14 +57,17 @@ flex interpreter.l
 ## Included Features
 
 - [x] Basic arithmetic and logic interpreter
+- [x] Basic string operation
 - [x] Support Variable storage (only **double** C++ type)
 - [x] Basic Error(lexical and syntaxe) handling
 - [x] Detect semantic errors such as **Division by Zero** and **Undefined Variable**...
 - [x] Support inline and multiline comments
+- [x] Add built-in C-math functions support
 
 
 ## To Do List 
 
 - [ ] Better memory management, like Garbage Collector
 - [ ] Include other features like **if-else** and **loops**
-- [ ] Add functions support
+- [ ] Add user fonction support
+- [ ] Use of Dynamically typed variables

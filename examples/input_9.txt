@@ -1,0 +1,3 @@
+start
+a = somme( 1 , 2 , 6); // somme is not defined 
+end

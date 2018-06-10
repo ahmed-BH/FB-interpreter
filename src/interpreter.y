@@ -85,7 +85,7 @@ struct return_t
 %token ASSIGN
 %token GRT LESS GE LE EQ DIF
 %token NOT AND OR
-%token LBRACE RBRACE COMMA SEMICOLON
+%token LBRACE RBRACE COMMA SEMICOLON LSBRACE RSBRACE
 %token STRING
 
 /*
@@ -112,7 +112,8 @@ struct return_t
  *
  *----------------------------------------------------------------------------*/
 %union { 
-    char             str[0x100]; 
+    char             str[0x100];
+    char             charac; 
     double           real; 
     int              integer;
     bool             logic;
@@ -162,11 +163,25 @@ inst         : expr_log  SEMICOLON            {cout << "Logic Expr      : "  << 
              | PRINT expr_str SEMICOLON       {cout << "PRINT           : " << $2 << endl;}
 ;
 
-expr_str     : expr_str PLUS expr_str {string tmp = string($1)+string($3); strcpy($$,tmp.c_str());}
-             | STRING MULT INT        {string tmp = str_mult($1,(int)$3); strcpy($$,tmp.c_str()); }
-             | STRING MULT REAL       {yyerror("can't multiply string by non-int type");YYABORT;}
-             | STRING MULT STRING     {yyerror("can't multiply string by non-int type");YYABORT;}
-             | STRING                 {string tmp = str($1);strcpy($$,tmp.c_str());}
+expr_str     : expr_str PLUS expr_str     {string tmp = string($1)+string($3); strcpy($$,tmp.c_str());}
+             | STRING MULT INT            {string tmp = str_mult($1,(int)$3); strcpy($$,tmp.c_str()); }
+             | STRING MULT REAL           {yyerror("can't multiply string by non-int type");YYABORT;}
+             | STRING MULT STRING         {yyerror("can't multiply string by non-int type");YYABORT;}
+             | STRING LSBRACE INT RSBRACE {
+                                            if($3 >= 0 && $3 < strlen($1)-2) // "a" = 3 charac
+                                            { 
+                                              string tmp(1, $1[$3+1]);
+                                              strcpy($$,tmp.c_str());
+                                              
+                                            }
+                                            else
+                                            { string msg = "string index out of range : given index " + 
+                                              to_string($3) + " while string length is " + to_string(strlen($1)-2);
+                                              yyerror(msg.c_str());
+                                              YYABORT;
+                                            }
+                                          }
+             | STRING                     {string tmp = str($1);strcpy($$,tmp.c_str());}
 ;
 
 expr_arth  :   LBRACE expr_arth RBRACE    {$$ = $2; }
@@ -218,7 +233,7 @@ logic_opr  : GRT | LESS | GE | LE | EQ | DIF
 oprd       :  TRUE    {$$ = 1;}
             | FALSE   {$$ = 0;}
             | REAL    {$$ = $1;}
-            | INT     {$$ = $1;}
+            | INT     {$<integer>$ = $1;}
             | PI      {$$ = M_PI;}
             | ID    {string key($1);
                 if(pile_exec.find(key) == pile_exec.end())

@@ -1,0 +1,4 @@
+start
+print "e" + "r"*2 + "or";
+print "basic"[10];
+end
