@@ -17,6 +17,8 @@
     #define RST     "\033[0m"
     #define BLD     "\033[1m"
 #endif
+
+#define MAX_ARGS 20
 /*--------------------------------------------------------------------
  * 
  * Includes
@@ -24,9 +26,11 @@
  *------------------------------------------------------------------*/
 #include <stdio.h>
 #include <iostream>
-#include <map>
+#include <string.h>
 #include <string>
 #include <cmath>
+#include <map>
+#include <vector>
 using namespace std;
 
 /*--------------------------------------------------------------------
@@ -34,7 +38,6 @@ using namespace std;
  * Flex and error handling function
  * 
  *------------------------------------------------------------------*/
-
 int                 yylex(void);                 
 void                yyerror(const char * msg);  
 
@@ -47,8 +50,27 @@ int                 line = 1;
 string              line_content;            
 extern FILE*        yyin;     
 string              filename;          
-map<string, double> pile_exec;   
+map<string, double> pile_exec;  
+struct func_args
+{
+    double  f_args[MAX_ARGS] ;
+    int     size;
+}; 
 
+struct return_t
+{
+    double  result;
+    string  error;
+};
+
+
+/*--------------------------------------------------------------------
+ * 
+ * my includes
+ * 
+ *------------------------------------------------------------------*/
+#include "str_ops.c"
+#include "cmath.c"
 
 %}
 
@@ -58,13 +80,13 @@ map<string, double> pile_exec;
  *
  *------------------------------------------------------------------*/
 %token START END PRINT
-%token ID NB PI TRUE FALSE
+%token ID INT REAL PI TRUE FALSE
 %token PLUS MINUS MULT DIV POW MOD
 %token ASSIGN
-%token SEMICOLON
 %token GRT LESS GE LE EQ DIF
 %token NOT AND OR
-%token LBRACE RBRACE
+%token LBRACE RBRACE COMMA SEMICOLON
+%token STRING
 
 /*
  * operator-precedence
@@ -89,10 +111,18 @@ map<string, double> pile_exec;
  * symbols' custom types 
  *
  *----------------------------------------------------------------------------*/
-%union { char str[0x100]; double real; bool logic;}
-%type<real>  NB expr_arth oprd
-%type<str>   ID inst PI GE LE EQ DIF GRT LESS logic_opr
-%type<logic> cmp expr_log
+%union { 
+    char             str[0x100]; 
+    double           real; 
+    int              integer;
+    bool             logic;
+    struct func_args t_args;
+ }
+%type<real>       REAL expr_arth oprd B-IN-func
+%type<integer>    INT
+%type<str>        ID inst PI GE LE EQ DIF GRT LESS logic_opr STRING expr_str
+%type<logic>      cmp expr_log
+%type<t_args>     args
 
 /*------------------------------------------------------------------------------
  *
@@ -123,14 +153,22 @@ code         : inst code
              | inst 
              |
 ;
-inst         : expr_log  SEMICOLON            { cout << "Logic Expr is" << $1 << endl;} 
-             | expr_arth SEMICOLON            {cout << "Expr_Value : "  << $1 << endl;} 
+inst         : expr_log  SEMICOLON            {cout << "Logic Expr      : "  << $1 << endl;} 
+             | expr_arth SEMICOLON            {cout << "Arithmetic Expr : "  << $1 << endl;} 
              | ID ASSIGN expr_log SEMICOLON   {string key($1);pile_exec[key] = $3;}
              | ID ASSIGN expr_arth SEMICOLON  {string key($1);pile_exec[key] = $3;}
-             | ID ASSIGN NB SEMICOLON         {string key($1);pile_exec[key] = $3;}
-             | ID ASSIGN cmp SEMICOLON        {string key($1);pile_exec[key] = $3;}
-             | PRINT expr_arth SEMICOLON      {cout << "PRINT : " << $2 << endl;}
+             | PRINT expr_arth SEMICOLON      {cout << "PRINT           : " << $2 << endl;}
+             | PRINT expr_log SEMICOLON       {cout << "PRINT           : " << $2 << endl;}
+             | PRINT expr_str SEMICOLON       {cout << "PRINT           : " << $2 << endl;}
 ;
+
+expr_str     : expr_str PLUS expr_str {string tmp = string($1)+string($3); strcpy($$,tmp.c_str());}
+             | STRING MULT INT        {string tmp = str_mult($1,(int)$3); strcpy($$,tmp.c_str()); }
+             | STRING MULT REAL       {yyerror("can't multiply string by non-int type");YYABORT;}
+             | STRING MULT STRING     {yyerror("can't multiply string by non-int type");YYABORT;}
+             | STRING                 {string tmp = str($1);strcpy($$,tmp.c_str());}
+;
+
 expr_arth  :   LBRACE expr_arth RBRACE    {$$ = $2; }
              | expr_arth PLUS  expr_arth  {$$ = $1+$3;}
              | expr_arth MINUS expr_arth  {$$ = $1-$3;}
@@ -173,10 +211,15 @@ cmp        : oprd logic_opr oprd
                         { $$ = $1 <= $3; }
                 }
 ;
-oprd       :  TRUE  {$$ = 1;}
-            | FALSE {$$ = 0;}
-            | NB    {$$ = $1;}
-            | PI    {$$ = M_PI;  }
+
+logic_opr  : GRT | LESS | GE | LE | EQ | DIF
+;
+
+oprd       :  TRUE    {$$ = 1;}
+            | FALSE   {$$ = 0;}
+            | REAL    {$$ = $1;}
+            | INT     {$$ = $1;}
+            | PI      {$$ = M_PI;}
             | ID    {string key($1);
                 if(pile_exec.find(key) == pile_exec.end())
                 {
@@ -189,10 +232,37 @@ oprd       :  TRUE  {$$ = 1;}
                     $$ = pile_exec[key];
                 } 
                 }
+            | B-IN-func
 ;
 
-logic_opr  : GRT | LESS | GE | LE | EQ | DIF
-            
+B-IN-func  : ID LBRACE args RBRACE 
+          { return_t func_res = built_in_func($1, $3) ;
+            if(func_res.error != "")
+            {
+              yyerror(func_res.error.c_str());
+              YYABORT;
+            }
+            else
+            {
+             $$ = func_res.result;
+            }
+         }
+;
+
+args       : expr_arth COMMA args 
+            {
+              $$.size = 1 + $3.size;
+              $$.f_args[0] = $1;
+              for(int i=1; i < $$.size; i++)
+              {
+                $$.f_args[i] = $3.f_args[i-1];
+              }                              
+            }
+           | expr_arth { $$.size = 1;
+                    $$.f_args[0] = $1;
+                  }
+           | {$$.size = 0;}
+;
              
 %%
 #include "lex.yy.c"
@@ -202,7 +272,6 @@ logic_opr  : GRT | LESS | GE | LE | EQ | DIF
  * functions
  * 
  *----------------------------------------------------------------------------*/
-
 void yyerror(const char * msg)
 {
     if(yylloc.first_line)
@@ -232,6 +301,7 @@ void yyerror(const char * msg)
     cerr << endl;
 
 }
+
 
 int main(int argc, char ** argv)
 {

@@ -42,11 +42,13 @@ integer       ([-]?[1-9]{digit}*)|0
 nb            ({real}|{integer})
 id            {letter}({digit}|{letter}|_|{digit})*
 pi            [Pp][Ii]
+string        \"[^\"]*\"
 comment       ("/""*"+([\n\r]|[^"/*"])*"*"+"/")|("//".*[\n])
 
 %%
 
 {comment}     {line += lines_in_comments(yytext,yyleng); column = 1; line_content = "";}
+{string}      {line += lines_in_comments(yytext,yyleng); sprintf(yylval.str,"%s",yytext); return STRING;}
 "start"       return START;
 "end"         return END;
 "print"       return PRINT;
@@ -70,13 +72,15 @@ comment       ("/""*"+([\n\r]|[^"/*"])*"*"+"/")|("//".*[\n])
 "&&"          return AND; 
 "||"          return OR;  
 "="           return ASSIGN;        
-";"           return SEMICOLON;     
+";"           return SEMICOLON;
+","           return COMMA;     
 {pi}          return PI;    
 {id}          {sprintf(yylval.str,"%s",yytext);return ID; }
-{nb}          {sscanf(yytext,"%lf",&yylval.real);return NB; }
+{real}        {sscanf(yytext,"%lf",&yylval.real);return REAL; }
+{integer}        {sscanf(yytext,"%d",&yylval.integer);return INT; }
 [\n]          {line++; column = 1; line_content = "";}
 [ \t\r]     
-.             {char msg[yyleng+1]; sprintf(msg,"Lexical Error : %s", yytext); yyerror(msg);}
+.             {char msg[yyleng+1]; sprintf(msg,"invalid syntax : '%s'", yytext); yyerror(msg);}
 
 %%
 

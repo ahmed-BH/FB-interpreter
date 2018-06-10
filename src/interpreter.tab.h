@@ -49,18 +49,18 @@ extern int yydebug;
     END = 259,
     PRINT = 260,
     ID = 261,
-    NB = 262,
-    PI = 263,
-    TRUE = 264,
-    FALSE = 265,
-    PLUS = 266,
-    MINUS = 267,
-    MULT = 268,
-    DIV = 269,
-    POW = 270,
-    MOD = 271,
-    ASSIGN = 272,
-    SEMICOLON = 273,
+    INT = 262,
+    REAL = 263,
+    PI = 264,
+    TRUE = 265,
+    FALSE = 266,
+    PLUS = 267,
+    MINUS = 268,
+    MULT = 269,
+    DIV = 270,
+    POW = 271,
+    MOD = 272,
+    ASSIGN = 273,
     GRT = 274,
     LESS = 275,
     GE = 276,
@@ -71,7 +71,10 @@ extern int yydebug;
     AND = 281,
     OR = 282,
     LBRACE = 283,
-    RBRACE = 284
+    RBRACE = 284,
+    COMMA = 285,
+    SEMICOLON = 286,
+    STRING = 287
   };
 #endif
 
@@ -80,10 +83,16 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 92 "interpreter.y" /* yacc.c:1909  */
- char str[0x100]; double real; bool logic;
+#line 114 "interpreter.y" /* yacc.c:1909  */
+ 
+    char             str[0x100]; 
+    double           real; 
+    int              integer;
+    bool             logic;
+    struct func_args t_args;
+ 
 
-#line 87 "interpreter.tab.h" /* yacc.c:1909  */
+#line 96 "interpreter.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
