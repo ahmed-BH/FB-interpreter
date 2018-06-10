@@ -31,7 +31,7 @@ Scrots
 ------
 
 ![Testing](scrots/tests.png?raw=true "Testing")
-![basic string and fonction support](scrots/basic_fct_str.png?raw=true "basic string and fonction support")
+![basic string and fonction support](scrots/fct_str.png?raw=true "basic string and fonction support")
 ### Adding new features
 
 * [Flex](https://www.gnu.org/software/flex/) : Fast Lexical Analyzer should be installed
