@@ -31,6 +31,8 @@
 #include <cmath>
 #include <map>
 #include <vector>
+#include <typeinfo>
+#include <boost/any.hpp>
 using namespace std;
 
 /*--------------------------------------------------------------------
@@ -46,11 +48,11 @@ void                yyerror(const char * msg);
  * Global variables
  * 
  *------------------------------------------------------------------*/
-int                 line = 1;      
-string              line_content;            
-extern FILE*        yyin;     
-string              filename;          
-map<string, double> pile_exec;  
+int                     line = 1;      
+string                  line_content;            
+extern FILE*            yyin;     
+string                  filename;          
+map<string, boost::any> stack_call;  
 struct func_args
 {
     double  f_args[MAX_ARGS] ;
@@ -156,8 +158,8 @@ code         : inst code
 ;
 inst         : expr_log  SEMICOLON            {cout << "Logic Expr      : "  << $1 << endl;} 
              | expr_arth SEMICOLON            {cout << "Arithmetic Expr : "  << $1 << endl;} 
-             | ID ASSIGN expr_log SEMICOLON   {string key($1);pile_exec[key] = $3;}
-             | ID ASSIGN expr_arth SEMICOLON  {string key($1);pile_exec[key] = $3;}
+             | ID ASSIGN expr_log SEMICOLON   {string key($1);stack_call[key] = $3;}
+             | ID ASSIGN expr_arth SEMICOLON  {string key($1);stack_call[key] = $3;}
              | PRINT expr_arth SEMICOLON      {cout << "PRINT           : " << $2 << endl;}
              | PRINT expr_log SEMICOLON       {cout << "PRINT           : " << $2 << endl;}
              | PRINT expr_str SEMICOLON       {cout << "PRINT           : " << $2 << endl;}
@@ -175,7 +177,13 @@ expr_str     : expr_str PLUS expr_str     {string tmp = string($1)+string($3); s
                                               
                                             }
                                             else
-                                            { string msg = "string index out of range : given index " + 
+                                            { 
+                                                // change next_token loc to dectect the exact error_loc
+                                                yylloc.first_column = @3.first_column;
+                                                yylloc.last_column = @3.last_column; 
+                                                yylloc.first_line  = @3.first_line;
+                                                // end
+                                              string msg = "string index out of range : given index " + 
                                               to_string($3) + " while string length is " + to_string(strlen($1)-2);
                                               yyerror(msg.c_str());
                                               YYABORT;
@@ -188,13 +196,25 @@ expr_arth  :   LBRACE expr_arth RBRACE    {$$ = $2; }
              | expr_arth PLUS  expr_arth  {$$ = $1+$3;}
              | expr_arth MINUS expr_arth  {$$ = $1-$3;}
              | expr_arth MULT  expr_arth  {$$ = $1*$3;}
-             | expr_arth DIV   expr_arth   { if($3!=0) $$ = $1/$3; 
-                                            else{yyerror("Division by zero is undefined ! ");
+             | expr_arth DIV   expr_arth   { if($3) $$ = $1/$3; 
+                                            else{
+                                                // change next_token loc to dectect the exact error_loc
+                                                yylloc.first_column = @3.first_column;
+                                                yylloc.last_column = @3.last_column; 
+                                                yylloc.first_line  = @3.first_line;
+                                                // end
+                                                yyerror("Division by zero is undefined ! ");
                                                 YYABORT;
                                                 }
                                             }
-             | expr_arth MOD   expr_arth   { if($3!=0) $$ = (int)$1 % (int)$3; 
-                                            else{yyerror("Division by zero is undefined ! ");
+             | expr_arth MOD   expr_arth   { if($3) $$ = (int)$1 % (int)$3; 
+                                            else{
+                                                // change next_token loc to dectect the exact error_loc
+                                                yylloc.first_column = @3.first_column;
+                                                yylloc.last_column = @3.last_column; 
+                                                yylloc.first_line  = @3.first_line;
+                                                // end
+                                                yyerror("Division by zero is undefined ! ");
                                                 YYABORT;
                                                 }
                                             }                              
@@ -230,21 +250,44 @@ cmp        : oprd logic_opr oprd
 logic_opr  : GRT | LESS | GE | LE | EQ | DIF
 ;
 
-oprd       :  TRUE    {$$ = 1;}
-            | FALSE   {$$ = 0;}
+oprd       :  TRUE    {$$ = true;}
+            | FALSE   {$$ = false;}
             | REAL    {$$ = $1;}
-            | INT     {$<integer>$ = $1;}
+            | INT     {$$ = $1;}
             | PI      {$$ = M_PI;}
             | ID    {string key($1);
-                if(pile_exec.find(key) == pile_exec.end())
+                if(stack_call.find(key) == stack_call.end())
                 {
+                    // change next_token loc to dectect the exact error_loc
+                    yylloc.first_column = @1.first_column;
+                    yylloc.last_column = @1.last_column; 
+                    yylloc.first_line  = @1.first_line;
+                    // end
                     string msg = string("Variable \"") + key + string("\" is not declared");
                     yyerror(msg.c_str());
                     YYABORT;
                 }
                 else
                 {
-                    $$ = pile_exec[key];
+                    // support for dynamically typed variables
+                    if(stack_call[key].type() == typeid(double))
+                        $$ = boost::any_cast<double>(stack_call[key]);
+                    else if(stack_call[key].type() == typeid(int))
+                        $$ = boost::any_cast<int>(stack_call[key]);
+                    else if(stack_call[key].type() == typeid(bool))
+                        $$ = boost::any_cast<bool>(stack_call[key]);
+                    else
+                    {
+                        // change next_token loc to dectect the exact error_loc
+                        yylloc.first_column = @1.first_column;
+                        yylloc.last_column = @1.last_column; 
+                        yylloc.first_line  = @1.first_line;
+                        // end
+                        string msg = string("not supported type for a Variable");
+                        yyerror(msg.c_str());
+                        YYABORT;
+                    }
+
                 } 
                 }
             | B-IN-func
@@ -254,6 +297,11 @@ B-IN-func  : ID LBRACE args RBRACE
           { return_t func_res = built_in_func($1, $3) ;
             if(func_res.error != "")
             {
+                // change next_token loc to dectect the exact error_loc
+                yylloc.first_column = @1.first_column;
+                yylloc.last_column = @4.last_column; 
+                yylloc.first_line  = @1.first_line;
+                // end
               yyerror(func_res.error.c_str());
               YYABORT;
             }

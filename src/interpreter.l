@@ -79,7 +79,7 @@ comment       ("/""*"+([\n\r]|[^"/*"])*"*"+"/")|("//".*[\n])
 {pi}          return PI;    
 {id}          {sprintf(yylval.str,"%s",yytext);return ID; }
 {real}        {sscanf(yytext,"%lf",&yylval.real);return REAL; }
-{integer}        {sscanf(yytext,"%d",&yylval.integer);return INT; }
+{integer}     {sscanf(yytext,"%d",&yylval.integer);return INT; }
 [\n]          {line++; column = 1; line_content = "";}
 [ \t\r]     
 .             {char msg[yyleng+1]; sprintf(msg,"invalid syntax : '%s'", yytext); yyerror(msg);}

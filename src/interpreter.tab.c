@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.0.5.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.0.5"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -95,6 +95,8 @@
 #include <cmath>
 #include <map>
 #include <vector>
+#include <typeinfo>
+#include <boost/any.hpp>
 using namespace std;
 
 /*--------------------------------------------------------------------
@@ -110,11 +112,11 @@ void                yyerror(const char * msg);
  * Global variables
  * 
  *------------------------------------------------------------------*/
-int                 line = 1;      
-string              line_content;            
-extern FILE*        yyin;     
-string              filename;          
-map<string, double> pile_exec;  
+int                     line = 1;      
+string                  line_content;            
+extern FILE*            yyin;     
+string                  filename;          
+map<string, boost::any> stack_call;  
 struct func_args
 {
     double  f_args[MAX_ARGS] ;
@@ -137,7 +139,7 @@ struct return_t
 #include "cmath.c"
 
 
-#line 141 "interpreter.tab.c" /* yacc.c:339  */
+#line 143 "interpreter.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -212,7 +214,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 114 "interpreter.y" /* yacc.c:355  */
+#line 116 "interpreter.y" /* yacc.c:355  */
  
     char             str[0x100];
     char             charac; 
@@ -222,7 +224,7 @@ union YYSTYPE
     struct func_args t_args;
  
 
-#line 226 "interpreter.tab.c" /* yacc.c:355  */
+#line 228 "interpreter.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -253,7 +255,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 257 "interpreter.tab.c" /* yacc.c:358  */
+#line 259 "interpreter.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -555,12 +557,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   151,   151,   153,   154,   155,   157,   158,   159,   160,
-     161,   162,   163,   166,   167,   168,   169,   170,   184,   187,
-     188,   189,   190,   191,   196,   201,   202,   205,   206,   207,
-     208,   209,   210,   213,   230,   230,   230,   230,   230,   230,
-     233,   234,   235,   236,   237,   238,   250,   253,   267,   276,
-     279
+       0,   153,   153,   155,   156,   157,   159,   160,   161,   162,
+     163,   164,   165,   168,   169,   170,   171,   172,   192,   195,
+     196,   197,   198,   199,   210,   221,   222,   225,   226,   227,
+     228,   229,   230,   233,   250,   250,   250,   250,   250,   250,
+     253,   254,   255,   256,   257,   258,   293,   296,   315,   324,
+     327
 };
 #endif
 
@@ -1159,6 +1161,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -1494,196 +1497,215 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-  /* Default location.  */
+  /* Default location. */
   YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
+  yyerror_range[1] = yyloc;
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
         case 6:
-#line 157 "interpreter.y" /* yacc.c:1646  */
+#line 159 "interpreter.y" /* yacc.c:1648  */
     {cout << "Logic Expr      : "  << (yyvsp[-1].logic) << endl;}
-#line 1506 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1510 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 7:
-#line 158 "interpreter.y" /* yacc.c:1646  */
+#line 160 "interpreter.y" /* yacc.c:1648  */
     {cout << "Arithmetic Expr : "  << (yyvsp[-1].real) << endl;}
-#line 1512 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1516 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 8:
-#line 159 "interpreter.y" /* yacc.c:1646  */
-    {string key((yyvsp[-3].str));pile_exec[key] = (yyvsp[-1].logic);}
-#line 1518 "interpreter.tab.c" /* yacc.c:1646  */
+#line 161 "interpreter.y" /* yacc.c:1648  */
+    {string key((yyvsp[-3].str));stack_call[key] = (yyvsp[-1].logic);}
+#line 1522 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 9:
-#line 160 "interpreter.y" /* yacc.c:1646  */
-    {string key((yyvsp[-3].str));pile_exec[key] = (yyvsp[-1].real);}
-#line 1524 "interpreter.tab.c" /* yacc.c:1646  */
+#line 162 "interpreter.y" /* yacc.c:1648  */
+    {string key((yyvsp[-3].str));stack_call[key] = (yyvsp[-1].real);}
+#line 1528 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 10:
-#line 161 "interpreter.y" /* yacc.c:1646  */
+#line 163 "interpreter.y" /* yacc.c:1648  */
     {cout << "PRINT           : " << (yyvsp[-1].real) << endl;}
-#line 1530 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1534 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 11:
-#line 162 "interpreter.y" /* yacc.c:1646  */
+#line 164 "interpreter.y" /* yacc.c:1648  */
     {cout << "PRINT           : " << (yyvsp[-1].logic) << endl;}
-#line 1536 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1540 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 12:
-#line 163 "interpreter.y" /* yacc.c:1646  */
+#line 165 "interpreter.y" /* yacc.c:1648  */
     {cout << "PRINT           : " << (yyvsp[-1].str) << endl;}
-#line 1542 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1546 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 13:
-#line 166 "interpreter.y" /* yacc.c:1646  */
+#line 168 "interpreter.y" /* yacc.c:1648  */
     {string tmp = string((yyvsp[-2].str))+string((yyvsp[0].str)); strcpy((yyval.str),tmp.c_str());}
-#line 1548 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1552 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 14:
-#line 167 "interpreter.y" /* yacc.c:1646  */
+#line 169 "interpreter.y" /* yacc.c:1648  */
     {string tmp = str_mult((yyvsp[-2].str),(int)(yyvsp[0].integer)); strcpy((yyval.str),tmp.c_str()); }
-#line 1554 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1558 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 15:
-#line 168 "interpreter.y" /* yacc.c:1646  */
+#line 170 "interpreter.y" /* yacc.c:1648  */
     {yyerror("can't multiply string by non-int type");YYABORT;}
-#line 1560 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1564 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 16:
-#line 169 "interpreter.y" /* yacc.c:1646  */
+#line 171 "interpreter.y" /* yacc.c:1648  */
     {yyerror("can't multiply string by non-int type");YYABORT;}
-#line 1566 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1570 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 17:
-#line 170 "interpreter.y" /* yacc.c:1646  */
+#line 172 "interpreter.y" /* yacc.c:1648  */
     {
-                                            if((yyvsp[-1].integer) >= 0 && (yyvsp[-1].integer) < strlen((yyvsp[-3].str))-2) // "a" = 3 car
+                                            if((yyvsp[-1].integer) >= 0 && (yyvsp[-1].integer) < strlen((yyvsp[-3].str))-2) // "a" = 3 charac
                                             { 
                                               string tmp(1, (yyvsp[-3].str)[(yyvsp[-1].integer)+1]);
                                               strcpy((yyval.str),tmp.c_str());
                                               
                                             }
                                             else
-                                            { string msg = "string index out of range : given index " + 
+                                            { 
+                                                // change next_token loc to dectect the exact error_loc
+                                                yylloc.first_column = (yylsp[-1]).first_column;
+                                                yylloc.last_column = (yylsp[-1]).last_column; 
+                                                yylloc.first_line  = (yylsp[-1]).first_line;
+                                                // end
+                                              string msg = "string index out of range : given index " + 
                                               to_string((yyvsp[-1].integer)) + " while string length is " + to_string(strlen((yyvsp[-3].str))-2);
                                               yyerror(msg.c_str());
                                               YYABORT;
                                             }
                                           }
-#line 1585 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1595 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 18:
-#line 184 "interpreter.y" /* yacc.c:1646  */
+#line 192 "interpreter.y" /* yacc.c:1648  */
     {string tmp = str((yyvsp[0].str));strcpy((yyval.str),tmp.c_str());}
-#line 1591 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1601 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 19:
-#line 187 "interpreter.y" /* yacc.c:1646  */
+#line 195 "interpreter.y" /* yacc.c:1648  */
     {(yyval.real) = (yyvsp[-1].real); }
-#line 1597 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1607 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 20:
-#line 188 "interpreter.y" /* yacc.c:1646  */
+#line 196 "interpreter.y" /* yacc.c:1648  */
     {(yyval.real) = (yyvsp[-2].real)+(yyvsp[0].real);}
-#line 1603 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1613 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 21:
-#line 189 "interpreter.y" /* yacc.c:1646  */
+#line 197 "interpreter.y" /* yacc.c:1648  */
     {(yyval.real) = (yyvsp[-2].real)-(yyvsp[0].real);}
-#line 1609 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1619 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 22:
-#line 190 "interpreter.y" /* yacc.c:1646  */
+#line 198 "interpreter.y" /* yacc.c:1648  */
     {(yyval.real) = (yyvsp[-2].real)*(yyvsp[0].real);}
-#line 1615 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1625 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 23:
-#line 191 "interpreter.y" /* yacc.c:1646  */
-    { if((yyvsp[0].real)!=0) (yyval.real) = (yyvsp[-2].real)/(yyvsp[0].real); 
-                                            else{yyerror("Division by zero is undefined ! ");
+#line 199 "interpreter.y" /* yacc.c:1648  */
+    { if((yyvsp[0].real)) (yyval.real) = (yyvsp[-2].real)/(yyvsp[0].real); 
+                                            else{
+                                                // change next_token loc to dectect the exact error_loc
+                                                yylloc.first_column = (yylsp[0]).first_column;
+                                                yylloc.last_column = (yylsp[0]).last_column; 
+                                                yylloc.first_line  = (yylsp[0]).first_line;
+                                                // end
+                                                yyerror("Division by zero is undefined ! ");
                                                 YYABORT;
                                                 }
                                             }
-#line 1625 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1641 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 24:
-#line 196 "interpreter.y" /* yacc.c:1646  */
-    { if((yyvsp[0].real)!=0) (yyval.real) = (int)(yyvsp[-2].real) % (int)(yyvsp[0].real); 
-                                            else{yyerror("Division by zero is undefined ! ");
+#line 210 "interpreter.y" /* yacc.c:1648  */
+    { if((yyvsp[0].real)) (yyval.real) = (int)(yyvsp[-2].real) % (int)(yyvsp[0].real); 
+                                            else{
+                                                // change next_token loc to dectect the exact error_loc
+                                                yylloc.first_column = (yylsp[0]).first_column;
+                                                yylloc.last_column = (yylsp[0]).last_column; 
+                                                yylloc.first_line  = (yylsp[0]).first_line;
+                                                // end
+                                                yyerror("Division by zero is undefined ! ");
                                                 YYABORT;
                                                 }
                                             }
-#line 1635 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1657 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 25:
-#line 201 "interpreter.y" /* yacc.c:1646  */
+#line 221 "interpreter.y" /* yacc.c:1648  */
     {(yyval.real) = pow((yyvsp[-2].real),(yyvsp[0].real));}
-#line 1641 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1663 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 26:
-#line 202 "interpreter.y" /* yacc.c:1646  */
+#line 222 "interpreter.y" /* yacc.c:1648  */
     { (yyval.real) = (yyvsp[0].real);}
-#line 1647 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1669 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 27:
-#line 205 "interpreter.y" /* yacc.c:1646  */
+#line 225 "interpreter.y" /* yacc.c:1648  */
     { (yyval.logic) = (yyvsp[-1].logic); }
-#line 1653 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1675 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 28:
-#line 206 "interpreter.y" /* yacc.c:1646  */
+#line 226 "interpreter.y" /* yacc.c:1648  */
     { (yyval.logic) = !(yyvsp[0].logic);}
-#line 1659 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1681 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 29:
-#line 207 "interpreter.y" /* yacc.c:1646  */
+#line 227 "interpreter.y" /* yacc.c:1648  */
     { (yyval.logic) = (yyvsp[-2].logic) && (yyvsp[0].logic);}
-#line 1665 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1687 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 30:
-#line 208 "interpreter.y" /* yacc.c:1646  */
+#line 228 "interpreter.y" /* yacc.c:1648  */
     { (yyval.logic) = (yyvsp[-2].logic) || (yyvsp[0].logic);}
-#line 1671 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1693 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 31:
-#line 209 "interpreter.y" /* yacc.c:1646  */
+#line 229 "interpreter.y" /* yacc.c:1648  */
     { (yyval.logic) = (yyvsp[0].logic);}
-#line 1677 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1699 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 32:
-#line 210 "interpreter.y" /* yacc.c:1646  */
+#line 230 "interpreter.y" /* yacc.c:1648  */
     { (yyval.logic) = (yyvsp[0].real);}
-#line 1683 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1705 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 33:
-#line 214 "interpreter.y" /* yacc.c:1646  */
+#line 234 "interpreter.y" /* yacc.c:1648  */
     {
                    if(string((yyvsp[-1].str)) == string("=="))
                         { (yyval.logic) = (yyvsp[-2].real) == (yyvsp[0].real); }
@@ -1698,61 +1720,89 @@ yyreduce:
                    else if(string((yyvsp[-1].str)) == string("<="))
                         { (yyval.logic) = (yyvsp[-2].real) <= (yyvsp[0].real); }
                 }
-#line 1702 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1724 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 40:
-#line 233 "interpreter.y" /* yacc.c:1646  */
-    {(yyval.real) = 1;}
-#line 1708 "interpreter.tab.c" /* yacc.c:1646  */
+#line 253 "interpreter.y" /* yacc.c:1648  */
+    {(yyval.real) = true;}
+#line 1730 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 41:
-#line 234 "interpreter.y" /* yacc.c:1646  */
-    {(yyval.real) = 0;}
-#line 1714 "interpreter.tab.c" /* yacc.c:1646  */
+#line 254 "interpreter.y" /* yacc.c:1648  */
+    {(yyval.real) = false;}
+#line 1736 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 42:
-#line 235 "interpreter.y" /* yacc.c:1646  */
+#line 255 "interpreter.y" /* yacc.c:1648  */
     {(yyval.real) = (yyvsp[0].real);}
-#line 1720 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1742 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 43:
-#line 236 "interpreter.y" /* yacc.c:1646  */
-    {(yyval.integer) = (yyvsp[0].integer);}
-#line 1726 "interpreter.tab.c" /* yacc.c:1646  */
+#line 256 "interpreter.y" /* yacc.c:1648  */
+    {(yyval.real) = (yyvsp[0].integer);}
+#line 1748 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 44:
-#line 237 "interpreter.y" /* yacc.c:1646  */
+#line 257 "interpreter.y" /* yacc.c:1648  */
     {(yyval.real) = M_PI;}
-#line 1732 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1754 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 45:
-#line 238 "interpreter.y" /* yacc.c:1646  */
+#line 258 "interpreter.y" /* yacc.c:1648  */
     {string key((yyvsp[0].str));
-                if(pile_exec.find(key) == pile_exec.end())
+                if(stack_call.find(key) == stack_call.end())
                 {
+                    // change next_token loc to dectect the exact error_loc
+                    yylloc.first_column = (yylsp[0]).first_column;
+                    yylloc.last_column = (yylsp[0]).last_column; 
+                    yylloc.first_line  = (yylsp[0]).first_line;
+                    // end
                     string msg = string("Variable \"") + key + string("\" is not declared");
                     yyerror(msg.c_str());
                     YYABORT;
                 }
                 else
                 {
-                    (yyval.real) = pile_exec[key];
+                    // support for dynamically typed variables
+                    if(stack_call[key].type() == typeid(double))
+                        (yyval.real) = boost::any_cast<double>(stack_call[key]);
+                    else if(stack_call[key].type() == typeid(int))
+                        (yyval.real) = boost::any_cast<int>(stack_call[key]);
+                    else if(stack_call[key].type() == typeid(bool))
+                        (yyval.real) = boost::any_cast<bool>(stack_call[key]);
+                    else
+                    {
+                        // change next_token loc to dectect the exact error_loc
+                        yylloc.first_column = (yylsp[0]).first_column;
+                        yylloc.last_column = (yylsp[0]).last_column; 
+                        yylloc.first_line  = (yylsp[0]).first_line;
+                        // end
+                        string msg = string("not supported type for a Variable");
+                        yyerror(msg.c_str());
+                        YYABORT;
+                    }
+
                 } 
                 }
-#line 1749 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1794 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 47:
-#line 254 "interpreter.y" /* yacc.c:1646  */
+#line 297 "interpreter.y" /* yacc.c:1648  */
     { return_t func_res = built_in_func((yyvsp[-3].str), (yyvsp[-1].t_args)) ;
             if(func_res.error != "")
             {
+                // change next_token loc to dectect the exact error_loc
+                yylloc.first_column = (yylsp[-3]).first_column;
+                yylloc.last_column = (yylsp[0]).last_column; 
+                yylloc.first_line  = (yylsp[-3]).first_line;
+                // end
               yyerror(func_res.error.c_str());
               YYABORT;
             }
@@ -1761,11 +1811,11 @@ yyreduce:
              (yyval.real) = func_res.result;
             }
          }
-#line 1765 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1815 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 48:
-#line 268 "interpreter.y" /* yacc.c:1646  */
+#line 316 "interpreter.y" /* yacc.c:1648  */
     {
               (yyval.t_args).size = 1 + (yyvsp[0].t_args).size;
               (yyval.t_args).f_args[0] = (yyvsp[-2].real);
@@ -1774,25 +1824,25 @@ yyreduce:
                 (yyval.t_args).f_args[i] = (yyvsp[0].t_args).f_args[i-1];
               }                              
             }
-#line 1778 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1828 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 49:
-#line 276 "interpreter.y" /* yacc.c:1646  */
+#line 324 "interpreter.y" /* yacc.c:1648  */
     { (yyval.t_args).size = 1;
                     (yyval.t_args).f_args[0] = (yyvsp[0].real);
                   }
-#line 1786 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1836 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
   case 50:
-#line 279 "interpreter.y" /* yacc.c:1646  */
+#line 327 "interpreter.y" /* yacc.c:1648  */
     {(yyval.t_args).size = 0;}
-#line 1792 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1842 "interpreter.tab.c" /* yacc.c:1648  */
     break;
 
 
-#line 1796 "interpreter.tab.c" /* yacc.c:1646  */
+#line 1846 "interpreter.tab.c" /* yacc.c:1648  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1915,7 +1965,6 @@ yyerrorlab:
   if (/*CONSTCOND*/ 0)
      goto yyerrorlab;
 
-  yyerror_range[1] = yylsp[1-yylen];
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
@@ -2027,7 +2076,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 282 "interpreter.y" /* yacc.c:1906  */
+#line 330 "interpreter.y" /* yacc.c:1907  */
 
 #include "lex.yy.c"
 
